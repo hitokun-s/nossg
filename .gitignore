@@ -1,3 +1,5 @@
-.idea/
 node_modules/
-*.md
+public/components
+.sass-cache
+*.iml
+.idea/
