@@ -7,6 +7,7 @@
         <!--<script src="js/jquery-1.10.2.min.js"></script>-->
         <link rel="stylesheet" href="css/bootstrap.css">
         <link rel="stylesheet" href="lib/codemirror-4.7/lib/codemirror.css">
+        <link rel="stylesheet" href="font/font-awesome-4.2.0/css/font-awesome.min.css"/>
 
         <script src="lib/codemirror-4.7/lib/codemirror.js"></script>
         <!-- 言語に応じたjsファイルを読み込む -->
@@ -36,11 +37,12 @@
                 height: 20px;
                 width: 100%;
                 top:0px;
-                padding-left: 20px;
                 background-color: black;
-            }
-            #logo{
                 color:white;
+            }
+            i{
+                margin-right: 10px;
+                color: white;
             }
 
             .mini-header{
@@ -86,13 +88,28 @@
             .CodeMirror{
                 height: 100%;
             }
-
+            #publish{
+                height: 100%;
+                border: 1px solid white;
+                padding-left: 3px;
+                padding-right:3px;
+                font-weight: bold;
+            }
+            #publish:hover{
+                color:black;
+                background-color: white;
+            }
+            .clickable{
+                cursor:pointer;
+            }
         </style>
     </head>
     <body>
     <div id="container">
         <div id="header">
-            <p id="logo">NOSSG</p>
+                <a href="/setting.html"><i class="fa fa-bars"></i></a>NOSSG
+                <div id="publish" class="clickable pull-right">PUBLISH</div>
+
         </div>
         <div id="main" class="row">
             <div id="left-panel" class="col-6">
@@ -110,6 +127,14 @@
             htMarkdown.onChange(function(markdown) {
                 var iframeContent = $('iframe')[0].contentWindow;
                 iframeContent.$("#result").html(marked(markdown));
+            });
+            $("#publish").click(function(){
+                var html = $('iframe')[0].contentWindow.document.documentElement.outerHTML;
+                $.post("/article/publish",{data:html}).done(function(data){
+                    console.log(data);
+                }).fail(function(err){
+                    console.log(err.responseText);
+                });
             });
         </script>
     </body>

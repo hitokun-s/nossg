@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+    <title>Node-Webkit Static Site Generator</title>
+    <link rel="stylesheet" href="css/bootstrap.css"/>
+    <script src="lib/jquery-1.10.2.min.js"></script>
+</head>
+<style>
+    body{
+
+    }
+</style>
+<body>
+<div class="container" class="form-group">
+    <h1>Setting</h1>
+    <table id="settings" class="table">
+        <tr id="template" style="display:none">
+            <td class="key"></td>
+            <td><input class="form-control" type="text"/></td>
+        </tr>
+    </table>
+    <button id="save" class="btn btn-primary">save</button>
+</div>
+<script>
+    $(function(){
+        $.get("/setting/read").done(function(data){
+            for(var k in data){
+                var row = $("#template").clone().addClass("item").show();
+                row.find(".key").text(k)
+                row.find("input").val(data[k])
+                $("#settings").append(row)
+            }
+        })
+        $("#save").click(function(){
+            var data = {}
+            $(".item").each(function(i,v){
+                data[$(v).find(".key").text()] = $(v).find("input").val()
+            })
+            $.post("/setting/save",data).done(function(data){
+                console.log(data);
+            }).fail(function(err){
+                console.log(err);
+            }).always(function(){
+                $("#save").blur()
+            })
+        });
+    });
+</script>
+</body>
+</html>
