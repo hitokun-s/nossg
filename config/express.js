@@ -8,8 +8,8 @@ var bodyParser = require('body-parser');
 var compress = require('compression');
 var methodOverride = require('method-override');
 
-module.exports = function(app, config) {
-    app.set('views', config.root + '/app/views');
+module.exports = function(app) {
+    app.set('views', global.appRoot + '/app/views');
     app.set('view engine', 'jade');
 
     // app.use(favicon(config.root + '/public/img/favicon.ico'));
@@ -20,10 +20,8 @@ module.exports = function(app, config) {
     }));
     app.use(cookieParser());
     app.use(compress());
-    app.use(express.static(config.root + '/public'));
+    app.use(express.static(global.appRoot + '/public'));
     app.use(methodOverride());
-
-    global.appRoot =config.root;
 
 //  var controllers = glob.sync(config.root + '/app/controllers/*.js');
 //  controllers.forEach(function (controller) {

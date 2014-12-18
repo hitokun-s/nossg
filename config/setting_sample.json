@@ -1,0 +1,10 @@
+{
+   "port": 3000,
+   "local_static_server":{
+       "root":"C:\\local_server_root\\",
+       "markdown_dir":"/md",
+       "html_dir":"/",
+       "img_dir":"/img",
+       "port":3001
+   }
+}

@@ -20,6 +20,8 @@
 
         <script src="lib/marked/lib/marked.js"></script>
 
+        <script src="lib/rainbow/js/rainbow-custom.min.js"></script>
+
         <script src="lib/jquery-1.10.2.min.js"></script>
         <script src="lib/shortcut.js"></script>
         <script src="js/HtMarkdown.js"></script>
@@ -88,19 +90,17 @@
             .CodeMirror{
                 height: 100%;
             }
-            #publish{
+            .operation{
                 height: 100%;
                 border: 1px solid white;
                 padding-left: 3px;
                 padding-right:3px;
                 font-weight: bold;
+                cursor:pointer;
             }
-            #publish:hover{
+            .operation:hover{
                 color:black;
                 background-color: white;
-            }
-            .clickable{
-                cursor:pointer;
             }
         </style>
     </head>
@@ -108,8 +108,8 @@
     <div id="container">
         <div id="header">
                 <a href="/setting.html"><i class="fa fa-bars"></i></a>NOSSG
-                <div id="publish" class="clickable pull-right">PUBLISH</div>
-
+                <div id="publish" class="operation pull-right">PUBLISH</div>
+                <div id="show" class="operation pull-right">SHOW</div>
         </div>
         <div id="main" class="row">
             <div id="left-panel" class="col-6">
@@ -123,17 +123,39 @@
         </div>
     </div>
         <script>
+            var d = new Date();
+            var filename = [d.getDate() ,d.getMonth(), d.getFullYear()].join("-") + ".html"// for test
+
             var htMarkdown = new HtMarkdown($('#editor')[0]);
             htMarkdown.onChange(function(markdown) {
                 var iframeContent = $('iframe')[0].contentWindow;
                 iframeContent.$("#result").html(marked(markdown));
+                iframeContent.$("code").each(function(i,v) {
+                    var classname = $(v).attr("class");
+                    if(classname && classname.indexOf("lang-") > -1){
+                        Rainbow.color($(v).text(), classname.split("-")[1], function(highlighted_code) {
+                            $(v).html(highlighted_code);
+                        });
+                    }
+                });
             });
             $("#publish").click(function(){
                 var html = $('iframe')[0].contentWindow.document.documentElement.outerHTML;
-                $.post("/article/publish",{data:html}).done(function(data){
-                    console.log(data);
+                $.post("/article/publish",{
+                    data:html,
+                    filename:filename
+                }).done(function(data){
+                    alert("success!");
                 }).fail(function(err){
-                    console.log(err.responseText);
+                    alert(err.responseText);
+                });
+            });
+            $("#show").click(function(){
+                $.get("/setting/read").done(function(config){
+                    location.href = "http://localhost:" + config.local_static_server.port
+                            + config.local_static_server.html_dir.replace("/","") + "/" + filename
+                }).fail(function(err){
+                    alert(err.responseText);
                 });
             });
         </script>

@@ -1,16 +1,12 @@
 var settingFile = global.appRoot + '/config/setting.json'
 module.exports = {
     read:function(req,res) {
-        var fs = require('fs')
-        var json = require(settingFile);
         res.setHeader('Content-Type', 'application/json')
-        res.send(json)
+        res.send(global.config)
     },
     save:function(req,res){
-        var json = require(settingFile);
-        for(var k in req.body){
-            json[k] = req.body[k]
-        }
+        var json = req.body
+        global.config = json
         var fs = require('fs')
         fs.writeFile(settingFile, JSON.stringify(json,null,"   ") , function (err) {
             res.send("error")
@@ -18,8 +14,7 @@ module.exports = {
         res.send("success")
     },
     get:function(prop){
-        var json = require(settingFile);
-        return json[prop];
+        return global.config[prop];
     }
 }
 

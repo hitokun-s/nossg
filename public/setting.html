@@ -27,7 +27,19 @@
     $(function(){
         $.get("/setting/read").done(function(data){
             for(var k in data){
+                if(data[k] instanceof Object){
+                    var _data = data[k]
+                    for(var _k in _data) {
+                        var row = $("#template").clone().addClass("item").show();
+                        row.attr("id", k +"."+_k)
+                        row.find(".key").text(k +"."+_k)
+                        row.find("input").val(_data[_k])
+                        $("#settings").append(row)
+                    }
+                    continue
+                }
                 var row = $("#template").clone().addClass("item").show();
+                row.attr("id",k)
                 row.find(".key").text(k)
                 row.find("input").val(data[k])
                 $("#settings").append(row)
@@ -36,7 +48,18 @@
         $("#save").click(function(){
             var data = {}
             $(".item").each(function(i,v){
-                data[$(v).find(".key").text()] = $(v).find("input").val()
+                var id = $(v).attr("id")
+                var val = $(v).find("input").val()
+                if(id.indexOf(".") > -1){
+                    var _data = data[id.split(".")[0]]
+                    if(!_data){
+                        _data = {}
+                        data[id.split(".")[0]] = _data
+                    }
+                    _data[id.split(".")[1]] = val
+                }else{
+                    data[id] = val
+                }
             })
             $.post("/setting/save",data).done(function(data){
                 console.log(data);
