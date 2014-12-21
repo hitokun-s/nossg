@@ -100,21 +100,44 @@
                 padding-right:3px;
                 font-weight: bold;
                 cursor:pointer;
+                display:inline-block;
             }
             .operation:hover{
                 color:black;
                 background-color: white;
+            }
+            #logo{
+                margin-right: 10px;
+            }
+            #wrap {
+                position: absolute;
+                left: 50%;
+            }
+            #content {
+                position: relative;
+                left: -50%;
             }
         </style>
     </head>
     <body>
     <div id="container">
         <div id="header">
-                <a href="/setting.html"><i class="fa fa-bars"></i></a>NOSSG
-                <div id="publish" class="operation pull-right">PUBLISH</div>
-                <div id="show" class="operation pull-right">SHOW</div>
+            <div  class="pull-left">
+                <a href="/setting.html"><i class="fa fa-bars"></i></a><span id="logo">NOSSG</span>
+                <div id="savemd" class="operation">SAVE-MD</div>
+                <div id="openmd" class="operation">OPEN-MD</div>
+            </div>
+            <div id="wrap">
+                <div id="content">
+                    -- <span id="curfile"></span> --
+                </div>
+            </div>
+            <div  class="pull-right">
+                <div id="publish" class="operation">PUBLISH</div>
+                <div id="show" class="operation">SHOW</div>
+            </div>
         </div>
-        <div id="main" class="row">
+        <div id="main" class="">
             <div id="left-panel" class="col-6">
                 <p class="mini-header">Markdown</p>
                 <textarea id="editor" rows="30" cols="50" wrap="soft"></textarea>
@@ -127,7 +150,9 @@
     </div>
         <script>
             var d = new Date();
-            var filename = [d.getDate() ,d.getMonth(), d.getFullYear()].join("-") + ".html"// for test
+//            var filename = [d.getDate() ,d.getMonth(), d.getFullYear()].join("-") + ".html"// for test
+
+            var curfile = "No Title"; // hold filename without extension
 
             var htMarkdown = new HtMarkdown($('#editor')[0]);
             htMarkdown.onChange(function(markdown) {
@@ -142,11 +167,30 @@
                     }
                 });
             });
+            $("#openmd").click(function(){
+                var w=window.open(
+                        '/list.html',
+                        'mdファイル選択',
+                        'Width=470,Height=550,menubar=no,toolbar=no,location=no'
+                );
+                w.focus();
+            })
+            $("#savemd").click(function(){
+                var md = htMarkdown.getValue();
+                $.post("/article/savemd",{
+                    data:md,
+                    filename:curfile + ".md"
+                }).done(function(data){
+                    alert("success!");
+                }).fail(function(err){
+                    alert(err.responseText);
+                });
+            });
             $("#publish").click(function(){
                 var html = $('iframe')[0].contentWindow.document.documentElement.outerHTML;
                 $.post("/article/publish",{
                     data:html,
-                    filename:filename
+                    filename : curfile + ".html"
                 }).done(function(data){
                     alert("success!");
                 }).fail(function(err){
@@ -156,11 +200,21 @@
             $("#show").click(function(){
                 $.get("/setting/read").done(function(config){
                     location.href = "http://localhost:" + config.local_static_server.port
-                            + config.local_static_server.html_dir.replace("/","") + "/" + filename
+                            + config.local_static_server.html_dir.replace("/","") + "/" + curfile + ".html"
                 }).fail(function(err){
                     alert(err.responseText);
                 });
             });
+
+            var readMdByFileName = function(filename){
+                $.get("/article/get", {filename:filename + ".md", data:"test"}).done(function(data){
+                    htMarkdown.setValue(data.data);
+                    $("#curfile").text(filename + ".md");
+                    curfile = filename;
+                }).fail(function(err){
+                    alert(err.responseText);
+                });
+            }
         </script>
     </body>
 </html>

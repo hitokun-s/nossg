@@ -25,28 +25,32 @@ var process = function(rawHtml){
 }
 
 module.exports = {
+    savemd:function(req,res){
+        var dir = global.config.local_static_server.root + global.config.local_static_server.markdown_dir
+        var filename = req.body.filename
+        var result = fs.writeFileSync(dir + filename, req.body.data);
+        res.setHeader('Content-Type', 'application/json')
+        res.send({result:'success'})
+    },
     publish:function(req,res) {
         var dir = global.config.local_static_server.root + global.config.local_static_server.html_dir
-        var d = new Date();
         var filename = req.body.filename
-        var fs = require('fs')
         fs.writeFile(dir + filename, process(req.body.data) , function (err) {
             res.send(err)
         });
         res.setHeader('Content-Type', 'application/json')
         res.send({result:'success'})
     },
-    show:function(req,res) {
-        var dir = global.config.local_static_server.root + global.config.local_static_server.html_dir
-
-        var d = new Date();
-        var filename = [d.getDate() ,d.getMonth(), d.getFullYear()].join("-") + ".html";
-
-        var fs = require('fs')
-        fs.writeFile(dir + "\\" + filename, req.body.data , function (err) {
-            res.send(err)
-        });
+    list:function(req,res){
+        var files = fs.readdirSync(global.config.local_static_server.root + global.config.local_static_server.markdown_dir);
         res.setHeader('Content-Type', 'application/json')
-        res.send({result:'success'})
+        res.send(files)
+    },
+    get:function(req,res){
+        var file = fs.readFileSync(global.config.local_static_server.root
+            + global.config.local_static_server.markdown_dir
+            + req.query.filename, 'utf8');
+        res.setHeader('Content-Type', 'application/json')
+        res.send({data:file})
     }
 }
