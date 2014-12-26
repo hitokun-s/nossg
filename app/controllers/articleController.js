@@ -1,6 +1,7 @@
 var cheerio = require('cheerio');
-var fs = require('fs-extra');
+var fs = require('fs-extra');// to use 'copy' method
 
+// copy external resource files
 var process = function(rawHtml){
     var $ = cheerio.load(rawHtml);
     $("script[src]").filter(function(i,v){
@@ -24,6 +25,7 @@ var process = function(rawHtml){
     return $.html();
 }
 
+// each action name should be included in URL ex. "/article/savemd"
 module.exports = {
     savemd:function(req,res){
         var dir = global.config.local_static_server.root + global.config.local_static_server.markdown_dir
