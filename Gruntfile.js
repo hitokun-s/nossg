@@ -22,11 +22,18 @@ module.exports = function (grunt) {
         nospawn: true,
         livereload: reloadPort
       },
+      html:{
+          files: [
+              'public/**/*.html'
+          ],
+          tasks: ['develop', 'delayed-livereload']
+      },
       js: {
         files: [
           'app.js',
           'app/**/*.js',
-          'config/*.js'
+          'config/*.js',
+          'public/js/*.js'
         ],
         tasks: ['develop', 'delayed-livereload']
       },
@@ -48,8 +55,10 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.config.requires('watch.js.files');
-  files = grunt.config('watch.js.files');
+//  grunt.config.requires('watch.js.files');
+//  files = grunt.config('watch.js.files')
+    grunt.config.requires('watch.html.files');
+    files = grunt.config('watch.html.files');
   files = grunt.file.expand(files);
 
   grunt.registerTask('delayed-livereload', 'Live reload after the node server has restarted.', function () {
@@ -63,7 +72,7 @@ module.exports = function (grunt) {
             grunt.log.error('Unable to make a delayed live reload.');
           done(reloaded);
         });
-    }, 500);
+    }, 50);
   });
 
   grunt.registerTask('default', [
