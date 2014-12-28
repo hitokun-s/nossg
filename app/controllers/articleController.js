@@ -1,9 +1,10 @@
 var cheerio = require('cheerio');
 var fs = require('fs-extra');// to use 'copy' method
 
-// copy external resource files
 var process = function(rawHtml){
     var $ = cheerio.load(rawHtml);
+
+    // copy external resource files
     $("script[src]").filter(function(i,v){
         return v.attribs.src.substr(0,4) !== "http" && v.attribs.src.substr(0,4) !== "data"
     }).each(function(i,v){
@@ -22,6 +23,8 @@ var process = function(rawHtml){
             if (err) console.log(err)
         })
     })
+    //remove devonly element
+    $("script.devonly").remove()
     return $.html();
 }
 
@@ -54,5 +57,24 @@ module.exports = {
             + req.query.filename, 'utf8');
         res.setHeader('Content-Type', 'application/json')
         res.send({data:file})
+    },
+    getInfo:function(req,res){
+        var data
+        try {
+            data = fs.readFileSync(global.config.local_static_server.root
+                + global.config.local_static_server.info_dir
+                + req.query.filename + ".json", 'utf8');
+        }catch(e){
+            // not found
+        }
+        res.setHeader('Content-Type', 'application/json')
+        res.send(data)
+    },
+    setInfo:function(req,res){
+        var dir = global.config.local_static_server.root + global.config.local_static_server.info_dir
+        var filename = req.body.filename + ".json"
+        var result = fs.writeFileSync(dir + filename, JSON.stringify(req.body, null, "   "));
+        res.setHeader('Content-Type', 'application/json')
+        res.send({result:'success'})
     }
 }
