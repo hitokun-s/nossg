@@ -1,15 +1,29 @@
 var cheerio = require('cheerio');
 var fs = require('fs-extra');// to use 'copy' method
 
-var process = function(rawHtml){
+var process = function(rawHtml, filename){
+    var info = fs.readFileSync(global.config.local_static_server.root + global.config.local_static_server.info_dir
+        + filename + ".json", 'utf8');
+    info = JSON.parse(info);
+
+    rawHtml = rawHtml.replace(/<title>(.)+<\/title>/g, "<title>" + info.title + "</title>");
+
     var $ = cheerio.load(rawHtml);
+
+    var meta = $('meta')
+    for(var k in meta){
+        if (meta[k].attribs && meta[k].attribs.name && meta[k].attribs.name === 'description') {
+            meta[k].attribs.content = info.description;
+            break;
+        }
+    }
 
     // copy external resource files
     $("script[src]").filter(function(i,v){
         return v.attribs.src.substr(0,4) !== "http" && v.attribs.src.substr(0,4) !== "data"
     }).each(function(i,v){
         var fromFile = global.appRoot + "/public/tmpl/" + v.attribs.src;
-        var toFile = global.config.local_static_server.root + v.attribs.src;
+        var toFile = global.config.local_static_server.root + global.config.local_static_server.html_dir + v.attribs.src;
         fs.copy(fromFile, toFile, function(err){
             if (err) console.log(err)
         })
@@ -18,7 +32,7 @@ var process = function(rawHtml){
         return v.attribs.href.substr(0,4) !== "http"
     }).each(function(i,v){
         var fromFile = global.appRoot + "/public/tmpl/" + v.attribs.href;
-        var toFile = global.config.local_static_server.root + v.attribs.href;
+        var toFile = global.config.local_static_server.root + global.config.local_static_server.html_dir + v.attribs.href;
         fs.copy(fromFile, toFile, function(err){
             if (err) console.log(err)
         })
@@ -40,7 +54,7 @@ module.exports = {
     publish:function(req,res) {
         var dir = global.config.local_static_server.root + global.config.local_static_server.html_dir
         var filename = req.body.filename
-        fs.writeFile(dir + filename, process(req.body.data) , function (err) {
+        fs.writeFile(dir + filename + ".html", process(req.body.data, filename) , function (err) {
             res.send(err)
         });
         res.setHeader('Content-Type', 'application/json')

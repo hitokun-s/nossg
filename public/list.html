@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+        <title>Node-Webkit Static Site Generator</title>
+        <!--<script src="js/jquery-1.10.2.min.js"></script>-->
+        <link rel="stylesheet" href="css/bootstrap.css">
+        <link rel="stylesheet" href="font/font-awesome-4.2.0/css/font-awesome.min.css"/>
+
+        <script src="lib/jquery-1.10.2.min.js"></script>
+        <style>
+
+        </style>
+    </head>
+    <body>
+    <div class="container">
+        <table id="files" class="table table-hover">
+        </table>
+    </div>
+        <script>
+            $.get("/article/list").done(function(data){
+                data.forEach(function(v,i){
+                    $("<tr><td>" + v + "</td></tr>").click(function(v){
+                        window.opener.readMdByFileName($(this).text().split(".")[0]);
+                        window.close();
+                    }).appendTo($("#files"));
+                });
+            }).fail(function(err){
+                alert(err.responseText);
+            });
+        </script>
+    </body>
+</html>

@@ -267,7 +267,7 @@
                 var html = $('iframe')[0].contentWindow.document.documentElement.outerHTML;
                 $.post("/article/publish",{
                     data:html,
-                    filename : curfile + ".html"
+                    filename : curfile
                 }).done(function(data){
                     alert("success!");
                 }).fail(function(err){
@@ -277,7 +277,7 @@
             $("#show").click(function(){
                 $.get("/setting/read").done(function(config){
                     location.href = "http://localhost:" + config.local_static_server.port
-                            + config.local_static_server.html_dir.replace("/","") + "/" + curfile + ".html"
+                            + config.local_static_server.html_dir + curfile + ".html"
                 }).fail(function(err){
                     alert(err.responseText);
                 });
@@ -287,6 +287,7 @@
                 $.get("/article/getInfo", {filename:filename}).done(function(json){
                     if(json){
                         articleInfo = json;
+                        $('iframe')[0].contentWindow.$("#title").text(articleInfo.title);
                     }else{
                         alert("not found!");
                     }

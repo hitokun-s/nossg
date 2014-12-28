@@ -1,0 +1,9 @@
+body{
+    padding: 20px;
+    font-family:  "Hiragino Kaku Gothic ProN", "游ゴシック", YuGothic, Meiryo, sans-serif;
+}
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}
