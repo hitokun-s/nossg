@@ -76,5 +76,13 @@ module.exports = {
         var result = fs.writeFileSync(dir + filename, JSON.stringify(req.body, null, "   "));
         res.setHeader('Content-Type', 'application/json')
         res.send({result:'success'})
+    },
+    rename:function(req,res){
+        var infoDir = global.config.local_static_server.root + global.config.local_static_server.info_dir
+        fs.rename(infoDir + req.body.from + ".json", infoDir + req.body.to + ".json");
+        var mdDir = global.config.local_static_server.root + global.config.local_static_server.markdown_dir
+        fs.rename(mdDir + req.body.from + ".md", mdDir + req.body.to + ".md");
+        res.setHeader('Content-Type', 'application/json')
+        res.send({result:'success'})
     }
 }

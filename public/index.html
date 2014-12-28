@@ -118,7 +118,7 @@
                 left: -50%;
             }
             #curfile{
-                cursor:pointer;
+                font-weight: bold;
                 margin-left:10px;
                 margin-right:10px;
             }
@@ -155,6 +155,9 @@
             .clickable{
                 cursor:pointer;
             }
+            #setToday{
+                margin-left: 10px;
+            }
 
         </style>
     </head>
@@ -175,6 +178,10 @@
                 <tr>
                     <td>description</td>
                     <td><textarea id="info-description" class="form-control"></textarea></td>
+                </tr>
+                <tr>
+                    <td>date</td>
+                    <td><span id="info-date"></span><button id="setToday" class="btn btn-warning">set Today</button></td>
                 </tr>
             </table>
             <button id="article-info-save" class="btn btn-primary">save</button>
@@ -211,6 +218,11 @@
     </div>
         <script>
             var articleInfo = {}
+
+            var getSysDate = function(){
+                var d = new Date()
+                return [d.getFullYear(), d.getMonth()+1, d.getDate()].join(".");
+            }
 
             var curfile;
             var setCurFile = function(filename){
@@ -274,10 +286,7 @@
             var readArticleInfo = function(filename){
                 $.get("/article/getInfo", {filename:filename}).done(function(json){
                     if(json){
-                        $("#info-filename").val(json.filename);
-                        $("#info-title").val(json.title);
-                        $("#info-description").val(json.description);
-                        $('iframe')[0].contentWindow.$("#title").text(json.title);
+                        articleInfo = json;
                     }else{
                         alert("not found!");
                     }
@@ -301,6 +310,11 @@
             $("#curfile").text(curfile);
 
             $("#article-setting").click(function(){
+                $("#info-filename").val(articleInfo.filename);
+                $("#info-title").val(articleInfo.title);
+                $("#info-description").val(articleInfo.description);
+                $("#info-date").text(articleInfo.date);
+                $('iframe')[0].contentWindow.$("#title").text(articleInfo.title);
                 $('.overlay-container').fadeIn();
             });
 
@@ -310,11 +324,19 @@
             });
 
             $("#article-info-save").click(function(){
-                $.post("/article/setInfo", {
-                    filename : $("#info-filename").val(),
-                    title : $("#info-title").val(),
-                    description : $("#info-description").val()
-                }).done(function(data){
+                if(articleInfo.filename !== $("#info-filename").val()){
+                    $.post("/article/rename", {
+                        from:articleInfo.filename,
+                        to:$("#info-filename").val()
+                    }).fail(function(err){
+                        alert(err.responseText);
+                    });
+                }
+                articleInfo.filename = $("#info-filename").val();
+                articleInfo.title = $("#info-title").val();
+                articleInfo.description = $("#info-description").val();
+                articleInfo.date = $("#info-date").text();
+                $.post("/article/setInfo", articleInfo).done(function(data){
                     $('.overlay-container').fadeOut();
                 }).fail(function(err){
                     alert(err.responseText);
@@ -323,17 +345,16 @@
                 $('iframe')[0].contentWindow.$("#title").text($("#info-title").val());
             });
 
-            var setLastUpdate = function(date){
-                if(!date){
-                    var d = new Date()
-                    $('iframe')[0].contentWindow.$("#lastUpdate").text([d.getFullYear(), d.getMonth()+1, d.getDate()].join("."));
-                }
-            }
-
             setCurFile("no-title");
 
             $('iframe').load(function(){
-                setLastUpdate();
+                articleInfo.title = "no-title";
+                articleInfo.date = getSysDate();
+                $('iframe')[0].contentWindow.$("#lastUpdate").text(getSysDate());
+            });
+
+            $("#setToday").click(function(){
+                $("#info-date").text(getSysDate());
             });
         </script>
     </body>
