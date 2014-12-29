@@ -2,9 +2,9 @@ var cheerio = require('cheerio');
 var fs = require('fs-extra');// to use 'copy' method
 
 var process = function(rawHtml, filename){
-    var info = fs.readFileSync(global.config.local_static_server.root + global.config.local_static_server.info_dir
+    var json = fs.readFileSync(global.config.local_static_server.root + global.config.local_static_server.info_dir
         + filename + ".json", 'utf8');
-    info = JSON.parse(info);
+    var info = JSON.parse(json);
 
     rawHtml = rawHtml.replace(/<title>(.)+<\/title>/g, "<title>" + info.title + "</title>");
 
