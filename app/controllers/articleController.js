@@ -18,6 +18,11 @@ var process = function(rawHtml, filename){
         }
     }
 
+    // insert js
+    if(global.config.insert_js){
+        $("head").append($("<script/>").text(global.config.insert_js));
+    }
+
     // copy external resource files
     $("script[src]").filter(function(i,v){
         return v.attribs.src.substr(0,4) !== "http" && v.attribs.src.substr(0,4) !== "data"

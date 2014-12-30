@@ -8,8 +8,9 @@
     <script src="lib/jquery-1.10.2.min.js"></script>
 </head>
 <style>
-    body{
-
+    textarea{
+        width: 100%;
+        height: 200px;
     }
 </style>
 <body>
@@ -18,7 +19,7 @@
     <table id="settings" class="table">
         <tr id="template" style="display:none">
             <td class="key"></td>
-            <td><input class="form-control" type="text"/></td>
+            <td><input class="form-control input" type="text"/></td>
         </tr>
     </table>
     <button id="save" class="btn btn-primary">save</button>
@@ -27,13 +28,23 @@
     $(function(){
         $.get("/setting/read").done(function(data){
             for(var k in data){
+                //special item
+                if(k === "insert_js"){
+                    var row = $("#template").clone().addClass("item").show();
+                    row.attr("id", k)
+                    row.find(".key").text(k);
+                    row.find(".input").replaceWith($("<textarea/>").addClass("input").val(data[k]))
+                    $("#settings").append(row);
+                    continue;
+                }
+                //nested item
                 if(data[k] instanceof Object){
                     var _data = data[k]
                     for(var _k in _data) {
                         var row = $("#template").clone().addClass("item").show();
                         row.attr("id", k +"."+_k)
                         row.find(".key").text(k +"."+_k)
-                        row.find("input").val(_data[_k])
+                        row.find(".input").val(_data[_k])
                         $("#settings").append(row)
                     }
                     continue
@@ -41,7 +52,7 @@
                 var row = $("#template").clone().addClass("item").show();
                 row.attr("id",k)
                 row.find(".key").text(k)
-                row.find("input").val(data[k])
+                row.find(".input").val(data[k])
                 $("#settings").append(row)
             }
         })
@@ -49,7 +60,7 @@
             var data = {}
             $(".item").each(function(i,v){
                 var id = $(v).attr("id")
-                var val = $(v).find("input").val()
+                var val = $(v).find(".input").val()
                 if(id.indexOf(".") > -1){
                     var _data = data[id.split(".")[0]]
                     if(!_data){
