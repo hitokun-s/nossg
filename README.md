@@ -4,15 +4,23 @@ nossg
 NOSSG means "NOde.js-driven Static Site Generator".  
 The project just has begun.
 
-###Expected Features:
+###Features:
 
-- ordinal markdown editor
-- more convenient markdown editor(ex. paste image, drag&drop image)
-- always can preview html converted from markdown
-- always can preview final site
-- file tree view
-- save files
-- git push
+- markdown editor with convenient functionality
+- live previewing html converted from markdown
+- previewing final site to be published
+- adding page info(title, description, etc) 
+- you can use any template
+
+###Dependency
+
+This is Node.js application.  
+So you must install required node modules.
+
+###how to run
+
+1. move to repository root
+2. run command: ```node app.js```
 
 ###Demo  
 [http://hitokun-s.github.io/ht-markdown/nossg_demo.html](http://hitokun-s.github.io/ht-markdown/nossg_demo.html)
